@@ -1,0 +1,91 @@
+############SQL for creating database##############
+
+
+
+CREATE DATABASE testdatabase;
+
+
+CREATE TABLE User (
+    ID int NOT NULL AUTO_INCREMENT,
+    Usarname varchar(255),
+    Password varchar(255),
+    PRIMARY KEY (ID)  
+);
+
+
+CREATE TABLE Address (
+    ID int NOT NULL,
+    User int,
+    Street varchar(255),
+    pincode int(255),
+    Country varchar(255),
+    State varchar(225),
+    Phone int(100),
+    PRIMARY KEY (ID),
+    FOREIGN KEY (User) REFERENCES User(ID)
+);
+
+
+
+@@@@@@@@@@@@@@@@save a user, login a user, add/update address in django@@@@@@@@@@@@@@@@@
+
+urls.py 
+
+urlpatterns = [
+
+    path('login', login_page, name="login"),
+    path('register', register_page, name="register"),
+    path('add_address', add_address, name="address"),
+   
+]
+
+
+views.py
+
+
+def register_page(request):
+
+    if request.method == 'POST':
+        username = request.POST['first_name']
+        password = request.POST['password']
+        user = User.objects.create_user(
+            username=username, password=password)        
+        user.save()
+    else:
+
+        return render(request, 'register.html')
+
+
+def login_page(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = auth.authenticate(username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+            return redirect('/')
+        else:
+            return render(request, "login.html", {})
+    else:
+
+        return render(request, "login.html", {})
+
+
+def add_address(request):
+    if request.method == 'POST':
+
+        street = request.POST['street']
+        pincode = request.POST['pincode']
+        country = request.POST['country']
+        state = request.POST['state']
+        phone = request.POST['phone']
+        user = request.user
+
+        address = Address.objects.create(
+            user=user, street=street, pincode=pincode, country=country, state=state, phone=phone)
+        
+        address.save()
+        return redirect('/')
+
+    else:
+        return render(request, "add_address,html", {})
